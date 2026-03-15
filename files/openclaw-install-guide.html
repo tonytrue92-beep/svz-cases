@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw // INSTALL GUIDE v2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --green:       #00ff41;
+    --green-dim:   #00b32c;
+    --green-dark:  #003d0f;
+    --green-glow:  #00ff4166;
+    --green-faint: #00ff411a;
+    --black:       #000000;
+    --bg:          #020d04;
+    --bg2:         #050f07;
+    --grid:        #00ff410d;
+    --yellow:      #ffe600;
+    --red:         #ff1a1a;
+    --cyan:        #00ffff;
+    --white:       #e8ffe8;
+    --border:      #00ff4133;
+    --border-hot:  #00ff41;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCANLINE overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.18) 2px,
+      rgba(0,0,0,0.18) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── GRID background ── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── PIXEL FONT ── */
+  .px { font-family: 'Press Start 2P', monospace; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 60px 0 48px;
+    position: relative;
+  }
+
+  .hero-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--black);
+    background: var(--green);
+    padding: 5px 12px;
+    display: inline-block;
+    margin-bottom: 20px;
+    animation: blink 1.2s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0; }
+  }
+
+  .hero-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(18px, 4vw, 32px);
+    color: var(--green);
+    text-shadow:
+      0 0 8px var(--green),
+      0 0 24px var(--green-glow),
+      0 0 60px var(--green-glow);
+    line-height: 1.5;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .hero-sub {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--green-dim);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+  }
+
+  .hero-lobster {
+    font-size: 64px;
+    display: block;
+    margin: 0 auto 16px;
+    filter: drop-shadow(0 0 18px var(--green));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+
+  .hero-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), var(--green), transparent);
+    box-shadow: 0 0 12px var(--green-glow);
+    margin: 32px 0;
+  }
+
+  /* ── STATS ROW ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+
+  .stat {
+    border: 1px solid var(--border);
+    padding: 16px 12px;
+    text-align: center;
+    position: relative;
+    background: var(--green-faint);
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .stat:hover {
+    border-color: var(--green);
+    box-shadow: 0 0 16px var(--green-glow), inset 0 0 16px var(--green-faint);
+  }
+
+  .stat-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--green);
+    text-shadow: 0 0 8px var(--green);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--green-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 56px 0 28px;
+  }
+
+  .section-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--black);
+    background: var(--green);
+    padding: 6px 10px;
+    flex-shrink: 0;
+    box-shadow: 4px 4px 0 var(--green-dark);
+  }
+
+  .section-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(10px, 2vw, 14px);
+    color: var(--green);
+    text-shadow: 0 0 12px var(--green-glow);
+    flex: 1;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--green-dim), transparent);
+  }
+
+  /* ── PLATFORM TABS ── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 2px solid var(--green);
+  }
+
+  .tab-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: transparent;
+    color: var(--green-dim);
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: 1px;
+    margin-right: 4px;
+  }
+
+  .tab-btn:hover { color: var(--green); background: var(--green-faint); }
+
+  .tab-btn.active {
+    color: var(--black);
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 16px var(--green-glow);
+  }
+
+  .tab-content { display: none; padding-top: 24px; }
+  .tab-content.active { display: block; }
+
+  /* ── STEP CARD ── */
+  .step {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 44px;
+    bottom: -20px;
+    width: 1px;
+    background: linear-gradient(180deg, var(--green-dim), transparent);
+  }
+
+  .step:last-child::before { display: none; }
+
+  .step-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    width: 46px;
+    height: 46px;
+    border: 2px solid var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--bg2);
+    color: var(--green);
+    box-shadow: 0 0 12px var(--green-glow), 4px 4px 0 var(--green-dark);
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-body {
+    flex: 1;
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    background: var(--bg2);
+    transition: border-color .2s;
+  }
+
+  .step-body:hover { border-color: var(--green-dim); }
+
+  .step-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--green);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .step-desc {
+    color: var(--white);
+    font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #000;
+    border: 1px solid var(--green-dim);
+    border-left: 3px solid var(--green);
+    padding: 14px 16px;
+    margin: 10px 0;
+    position: relative;
+    overflow-x: auto;
+    box-shadow: inset 0 0 20px rgba(0,255,65,0.05);
+  }
+
+  .code-block pre {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    white-space: pre;
+    line-height: 1.7;
+    text-shadow: 0 0 4px var(--green-glow);
+  }
+
+  .code-block .comment { color: var(--green-dim); }
+  .code-block .cmd     { color: var(--green); }
+  .code-block .str     { color: var(--yellow); }
+  .code-block .flag    { color: var(--cyan); }
+  .code-block .warn    { color: var(--red); }
+
+  .code-label {
+    position: absolute;
+    top: -1px;
+    right: 12px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--black);
+    background: var(--green-dim);
+    padding: 2px 8px;
+  }
+
+  /* ── ALERT BOX ── */
+  .alert {
+    border: 1px solid;
+    padding: 14px 18px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .alert-warn  { border-color: var(--yellow); background: rgba(255,230,0,.05); }
+  .alert-info  { border-color: var(--cyan);   background: rgba(0,255,255,.05); }
+  .alert-danger{ border-color: var(--red);    background: rgba(255,26,26,.05); }
+  .alert-ok    { border-color: var(--green);  background: var(--green-faint);  }
+
+  .alert-icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    flex-shrink: 0;
+    padding: 2px 6px;
+  }
+
+  .alert-warn   .alert-icon { background: var(--yellow);  color: #000; }
+  .alert-info   .alert-icon { background: var(--cyan);    color: #000; }
+  .alert-danger .alert-icon { background: var(--red);     color: #fff; }
+  .alert-ok     .alert-icon { background: var(--green);   color: #000; }
+
+  .alert-text { font-size: 12px; line-height: 1.7; color: var(--white); }
+  .alert-text b { color: var(--green); }
+  .alert-text .y { color: var(--yellow); }
+  .alert-text .r { color: var(--red); }
+  .alert-text .c { color: var(--cyan); }
+
+  /* ── PIXEL TABLE ── */
+  .px-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12px;
+  }
+
+  .px-table th {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--black);
+    background: var(--green-dim);
+    padding: 8px 12px;
+    text-align: left;
+    letter-spacing: 1px;
+  }
+
+  .px-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--white);
+    vertical-align: top;
+  }
+
+  .px-table tr:hover td { background: var(--green-faint); }
+
+  .px-table .g { color: var(--green); font-weight: bold; }
+  .px-table .y { color: var(--yellow); }
+  .px-table .r { color: var(--red); }
+  .px-table .c { color: var(--cyan); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+
+  .progress-lbl {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--green-dim);
+    width: 100px;
+    flex-shrink: 0;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    border: 1px solid var(--green-dim);
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green-glow);
+    animation: fillAnim 2s ease-out forwards;
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  @keyframes fillAnim {
+    to { transform: scaleX(1); }
+  }
+
+  .progress-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--green);
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 3px 8px;
+    margin: 2px 3px;
+  }
+
+  .badge-g { background: var(--green-dark);  color: var(--green);  border: 1px solid var(--green-dim); }
+  .badge-y { background: rgba(255,230,0,.1); color: var(--yellow); border: 1px solid var(--yellow); }
+  .badge-r { background: rgba(255,26,26,.1); color: var(--red);    border: 1px solid var(--red); }
+  .badge-c { background: rgba(0,255,255,.1); color: var(--cyan);   border: 1px solid var(--cyan); }
+
+  /* ── VPS SPEC CARDS ── */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .spec-card {
+    border: 1px solid var(--border);
+    padding: 20px 16px;
+    background: var(--bg2);
+    position: relative;
+    transition: all .2s;
+  }
+
+  .spec-card:hover {
+    border-color: var(--green);
+    box-shadow: 0 0 20px var(--green-glow);
+    transform: translateY(-2px);
+  }
+
+  .spec-card-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--green);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+
+  .spec-key { color: var(--green-dim); }
+  .spec-val { color: var(--white); }
+  .spec-val.g { color: var(--green); }
+  .spec-val.y { color: var(--yellow); }
+
+  /* ── PIXEL DIVIDER ── */
+  .px-divider {
+    text-align: center;
+    color: var(--green-dim);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    letter-spacing: 4px;
+    margin: 40px 0;
+    opacity: .5;
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 24px 0;
+  }
+
+  .flow-box {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 10px 14px;
+    border: 2px solid var(--green);
+    color: var(--green);
+    background: var(--bg2);
+    text-align: center;
+    box-shadow: 4px 4px 0 var(--green-dark);
+    line-height: 1.8;
+  }
+
+  .flow-box.active {
+    background: var(--green);
+    color: var(--black);
+    box-shadow: 4px 4px 0 var(--green-dark), 0 0 20px var(--green-glow);
+  }
+
+  .flow-arrow {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--green-dim);
+    padding: 0 8px;
+    text-shadow: 0 0 6px var(--green-glow);
+  }
+
+  /* ── FIREWALL RULES ── */
+  .firewall-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .fw-rule {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    font-size: 11px;
+    background: #000;
+  }
+
+  .fw-rule .port { color: var(--green); font-size: 13px; font-weight: bold; }
+  .fw-rule .desc { color: var(--green-dim); font-size: 10px; margin-top: 2px; }
+  .fw-rule.allow { border-left: 3px solid var(--green); }
+  .fw-rule.deny  { border-left: 3px solid var(--red); }
+  .fw-rule.rate  { border-left: 3px solid var(--yellow); }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--green);
+    text-shadow: 0 0 12px var(--green-glow);
+    margin-bottom: 12px;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .footer-links a {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--green-dim);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color .2s;
+  }
+
+  .footer-links a:hover { color: var(--green); text-shadow: 0 0 8px var(--green-glow); }
+
+  .footer-copy {
+    font-size: 10px;
+    color: var(--green-dark);
+  }
+
+  /* ── CURSOR BLINK ── */
+  .cursor::after {
+    content: '█';
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+  }
+
+  /* ── TERMINAL WINDOW ── */
+  .terminal {
+    border: 1px solid var(--green-dim);
+    background: #000;
+    margin: 16px 0;
+    box-shadow: 0 0 24px rgba(0,255,65,0.1);
+  }
+
+  .terminal-bar {
+    background: var(--green-dark);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terminal-dot {
+    width: 8px; height: 8px;
+    border: 1px solid var(--green-dim);
+    display: inline-block;
+  }
+
+  .terminal-dot.r { background: var(--red); border-color: var(--red); }
+  .terminal-dot.y { background: var(--yellow); border-color: var(--yellow); }
+  .terminal-dot.g { background: var(--green); border-color: var(--green); }
+
+  .terminal-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--green-dim);
+    margin-left: 8px;
+  }
+
+  .terminal-body {
+    padding: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    line-height: 2;
+  }
+
+  .terminal-body .prompt { color: var(--green-dim); }
+  .terminal-body .out    { color: var(--white); }
+  .terminal-body .ok     { color: var(--green); }
+  .terminal-body .err    { color: var(--red); }
+  .terminal-body .hl     { color: var(--yellow); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .step { flex-direction: column; }
+    .step::before { display: none; }
+    .step-num { width: 36px; height: 36px; font-size: 8px; }
+    .hero-title { font-size: 16px; }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+  <div class="hero">
+    <span class="hero-badge px">▶ INSTALL GUIDE v2026.02</span>
+    <div class="hero-lobster">🦞</div>
+    <h1 class="hero-title">OPENCLAW<br>SETUP</h1>
+    <p class="hero-sub">DEPLOY YOUR OWN AI GATEWAY // ANY OS // ANY PLATFORM</p>
+    <div class="hero-line"></div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-val">5 MIN</span>
+        <span class="stat-lbl">TO INSTALL</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">NODE 22+</span>
+        <span class="stat-lbl">REQUIRED</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">MIT</span>
+        <span class="stat-lbl">LICENSE</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">60K ⭐</span>
+        <span class="stat-lbl">GITHUB STARS</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">FREE</span>
+        <span class="stat-lbl">SELF-HOSTED</span>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-box">TELEGRAM<br>WHATSAPP<br>DISCORD</div>
+      <div class="flow-arrow">►</div>
+      <div class="flow-box active">OPENCLAW<br>GATEWAY<br>:18789</div>
+      <div class="flow-arrow">►</div>
+      <div class="flow-box">CLAUDE<br>GPT<br>OLLAMA</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ PREREQS ═══════════════════════════════ -->
+  <div class="section-head">
+    <div class="section-num">00</div>
+    <div class="section-title">PREREQUISITES</div>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--white);margin-bottom:16px;">Перед установкой подготовь следующее:</p>
+
+  <table class="px-table">
+    <tr>
+      <th>КОМПОНЕНТ</th>
+      <th>ТРЕБОВАНИЕ</th>
+      <th>ГДЕ ВЗЯТЬ</th>
+      <th>СТАТУС</th>
+    </tr>
+    <tr>
+      <td class="g">Node.js</td>
+      <td class="c">v22 или выше</td>
+      <td>nodejs.org</td>
+      <td><span class="badge badge-r">ОБЯЗАТЕЛЬНО</span></td>
+    </tr>
+    <tr>
+      <td class="g">API Key</td>
+      <td class="c">Claude / OpenAI / Gemini</td>
+      <td>console.anthropic.com</td>
+      <td><span class="badge badge-r">ОБЯЗАТЕЛЬНО</span></td>
+    </tr>
+    <tr>
+      <td class="g">Telegram Bot Token</td>
+      <td class="c">@BotFather в Telegram</td>
+      <td>t.me/BotFather</td>
+      <td><span class="badge badge-y">РЕКОМЕНДУЕТСЯ</span></td>
+    </tr>
+    <tr>
+      <td class="g">npm / pnpm</td>
+      <td class="c">Идёт с Node.js</td>
+      <td>—</td>
+      <td><span class="badge badge-g">ВКЛЮЧЕНО</span></td>
+    </tr>
+    <tr>
+      <td class="g">Docker</td>
+      <td class="c">Для VPS / sandbox</td>
+      <td>docker.com</td>
+      <td><span class="badge badge-c">VPS/SANDBOX</span></td>
+    </tr>
+  </table>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">INFO</span>
+    <div class="alert-text">
+      <b>Что выбрать из LLM?</b> Claude от Anthropic — официально рекомендуемый провайдер для OpenClaw.
+      Получи ключ на <span class="c">console.anthropic.com</span>. Также работают OpenAI, Gemini, Mistral, Ollama (локально).
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ TABS ═══════════════════════════════ -->
+  <div class="section-head">
+    <div class="section-num">01</div>
+    <div class="section-title">ВЫБЕРИ ПЛАТФОРМУ</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('macos')">🍎 macOS</button>
+    <button class="tab-btn" onclick="switchTab('windows')">🪟 Windows</button>
+    <button class="tab-btn" onclick="switchTab('vps')">☁️ VPS Linux</button>
+  </div>
+
+  <!-- ══════════ macOS ══════════ -->
+  <div class="tab-content active" id="tab-macos">
+
+    <div class="alert alert-ok">
+      <span class="alert-icon">BEST</span>
+      <div class="alert-text">
+        <b>macOS — рекомендуемая платформа</b> для OpenClaw. Нативная поддержка iMessage (через BlueBubbles),
+        Apple Silicon (M1/M2/M3/M4), встроенный LaunchAgent daemon. Работает без Docker.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">УСТАНОВИ NODE.JS 22+</div>
+        <div class="step-desc">Рекомендуется Homebrew — самый чистый путь на macOS. Homebrew сам выберет правильную архитектуру (ARM64 для Apple Silicon, x86 для Intel).</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span>
+            <span class="terminal-dot y"></span>
+            <span class="terminal-dot g"></span>
+            <span class="terminal-title">Terminal.app</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">brew install node@22</span>
+<span class="out">→ Downloading node 22.x ...</span>
+<span class="out">→ Installing node@22 ...</span>
+<span class="ok">✓ node@22 installed successfully</span>
+
+<span class="comment"># Или без Homebrew — качай с nodejs.org:</span>
+<span class="comment"># https://nodejs.org/ → macOS installer → ARM64 для M-чипов</span>
+
+<span class="prompt">$ </span>node --version
+<span class="ok">v22.13.1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">УСТАНОВИ OPENCLAW</div>
+        <div class="step-desc">Одна команда — устанавливает OpenClaw глобально через npm.</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Terminal.app</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">npm install -g openclaw@latest</span>
+<span class="out">added 847 packages in 23s</span>
+<span class="ok">+ openclaw@2026.2.6</span>
+
+<span class="comment"># Проверяем установку:</span>
+<span class="prompt">$ </span>openclaw --version
+<span class="ok">openclaw/2026.2.6 darwin-arm64 node-v22.13.1</span>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">!!!</span>
+          <div class="alert-text">
+            Если после установки команда <b>openclaw</b> не находится — проблема с PATH.
+            Добавь в <span class="y">~/.zshrc</span>: <br>
+            <code style="color:var(--green)">export PATH="$(npm prefix -g)/bin:$PATH"</code><br>
+            Затем: <code style="color:var(--green)">source ~/.zshrc</code>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">M-CHIP</span>
+          <div class="alert-text">
+            На Apple Silicon при ошибках компиляции native модулей:<br>
+            <code style="color:var(--green)">SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest</code><br>
+            Также убедись что установлен Xcode CLI Tools: <code style="color:var(--green)">xcode-select --install</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">ЗАПУСТИ ОНБОРДИНГ WIZARD</div>
+        <div class="step-desc">Интерактивный мастер настроит всё: API ключи, каналы, workspace файлы, LaunchAgent daemon для автозапуска.</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Terminal.app</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">openclaw onboard --install-daemon</span>
+<span class="out"></span>
+<span class="hl">  ██████╗ ██████╗ ███████╗███╗   ██╗ ██████╗██╗      █████╗ ██╗    ██╗</span>
+<span class="ok">  Welcome to OpenClaw Setup Wizard 🦞</span>
+<span class="out"></span>
+<span class="out">  [1] Enter your Anthropic API key: sk-ant-...</span>
+<span class="out">  [2] Select model: claude-sonnet-4-5</span>
+<span class="out">  [3] Setup Telegram? [Y/n]: Y</span>
+<span class="out">  [4] Enter bot token: 123456:ABC...</span>
+<span class="out">  [5] Install macOS daemon (LaunchAgent)? [Y/n]: Y</span>
+<span class="ok">  ✓ Daemon installed → com.openclaw.gateway</span>
+<span class="ok">  ✓ Gateway started at http://127.0.0.1:18789</span>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <span class="alert-icon">TIP</span>
+          <div class="alert-text">
+            Флаг <b>--install-daemon</b> создаёт LaunchAgent — Gateway будет запускаться автоматически при входе в систему.
+            Без него Gateway работает только пока открыт Terminal.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <div class="step-title">ПОДКЛЮЧИ TELEGRAM-БОТА</div>
+        <div class="step-desc">Создай бота в @BotFather и пройди pairing с OpenClaw.</div>
+        <div class="code-block">
+          <div class="code-label">BOTFATHER STEPS</div>
+          <pre><span class="comment"># В Telegram → @BotFather:</span>
+<span class="cmd">/newbot</span>
+<span class="str">→ Enter name: My AI Assistant</span>
+<span class="str">→ Enter username: myai_bot</span>
+<span class="ok">→ Copy token: 123456789:ABCDefghIJKlmnOPQRST-uvwxyz</span>
+
+<span class="comment"># Сохрани токен — нужен в конфиге openclaw.json</span></pre>
+        </div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Terminal.app — pairing</span>
+          </div>
+          <div class="terminal-body">
+<span class="comment"># Посмотреть pending pairing запросы:</span>
+<span class="prompt">$ </span>openclaw pairing list telegram
+<span class="out">  CODE: ABC123  │  From: @yourname  │  Expires: 58m</span>
+
+<span class="comment"># Одобрить:</span>
+<span class="prompt">$ </span>openclaw pairing approve telegram ABC123
+<span class="ok">  ✓ Paired. You can now chat with your bot.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <div class="step-title">ОТКРОЙ CONTROL UI DASHBOARD</div>
+        <div class="step-desc">Веб-интерфейс для управления агентом, просмотра сессий и конфигурации.</div>
+        <div class="code-block">
+          <pre><span class="comment"># Gateway уже запущен daemon'ом? Просто открой браузер:</span>
+<span class="str">http://127.0.0.1:18789</span>
+
+<span class="comment"># Или запусти вручную:</span>
+<span class="cmd">openclaw gateway</span>
+<span class="ok">→ Gateway started on ws://127.0.0.1:18789</span>
+<span class="ok">→ Control UI: http://127.0.0.1:18789</span></pre>
+        </div>
+        <div class="alert alert-danger">
+          <span class="alert-icon">SEC</span>
+          <div class="alert-text">
+            <span class="r">НИКОГДА не открывай Control UI в публичный интернет!</span>
+            Это admin-панель с полным доступом к агенту и конфигу.
+            Используй только <b>localhost</b>, SSH tunnel или Tailscale.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">06</div>
+      <div class="step-body">
+        <div class="step-title">ПРОВЕРЬ УСТАНОВКУ</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Health Check</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span>openclaw doctor
+<span class="ok">  ✓ Node.js v22.13.1</span>
+<span class="ok">  ✓ openclaw v2026.2.6</span>
+<span class="ok">  ✓ Config valid</span>
+<span class="ok">  ✓ Gateway running :18789</span>
+<span class="ok">  ✓ Telegram channel connected</span>
+<span class="ok">  ✓ Anthropic API key valid</span>
+<span class="out">  — No issues found 🦞</span>
+
+<span class="prompt">$ </span>openclaw status --deep
+<span class="ok">  Gateway: RUNNING  │  Uptime: 2h 14m</span>
+<span class="ok">  Sessions: 3 active │  Model: claude-sonnet-4-5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-ok">
+      <span class="alert-icon">DONE</span>
+      <div class="alert-text">
+        <b>macOS установка завершена!</b> Напиши своему Telegram боту — агент ответит.
+        Control UI: <span class="c">http://127.0.0.1:18789</span>
+      </div>
+    </div>
+
+  </div><!-- /tab-macos -->
+
+  <!-- ══════════ WINDOWS ══════════ -->
+  <div class="tab-content" id="tab-windows">
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">WSL2</span>
+      <div class="alert-text">
+        <b>OpenClaw не поддерживает нативный Windows.</b> WhatsApp Web протокол, iMessage и Unix process management
+        требуют POSIX-окружения. Официальный путь — <span class="y">WSL2 (Windows Subsystem for Linux)</span>.
+        После установки WSL2 следуй Linux-инструкциям — всё работает одинаково хорошо.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">УСТАНОВИ WSL2</div>
+        <div class="step-desc">Открой PowerShell от имени Администратора и выполни:</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">PowerShell (Admin)</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">PS&gt; </span><span class="cmd">wsl --install</span>
+<span class="out">Installing: Windows Subsystem for Linux</span>
+<span class="out">Installing: Ubuntu</span>
+<span class="ok">The requested operation is successful.</span>
+<span class="out">Please restart your computer to continue setup.</span>
+
+<span class="comment"># Перезагрузи ПК. После перезагрузки откроется Ubuntu:</span>
+<span class="out">Enter new UNIX username: myuser</span>
+<span class="out">New password: ****</span>
+<span class="ok">Installation complete!</span>
+
+<span class="comment"># Проверить версию WSL:</span>
+<span class="prompt">PS&gt; </span>wsl --status
+<span class="ok">Default Version: 2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">УСТАНОВИ NODE.JS 22 В WSL2</div>
+        <div class="step-desc">Открой Ubuntu (WSL2) и выполни — рекомендуем nvm для управления версиями Node:</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Ubuntu (WSL2)</span>
+          </div>
+          <div class="terminal-body">
+<span class="comment"># Обновляем пакеты:</span>
+<span class="prompt">$ </span><span class="cmd">sudo apt update && sudo apt upgrade -y</span>
+
+<span class="comment"># Устанавливаем nvm:</span>
+<span class="prompt">$ </span><span class="cmd">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash</span>
+<span class="prompt">$ </span><span class="cmd">source ~/.bashrc</span>
+
+<span class="comment"># Устанавливаем Node 22:</span>
+<span class="prompt">$ </span><span class="cmd">nvm install 22 && nvm use 22</span>
+<span class="ok">Now using node v22.13.1 (npm v10.9.2)</span>
+
+<span class="prompt">$ </span>node --version
+<span class="ok">v22.13.1</span>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">PERF</span>
+          <div class="alert-text">
+            Храни файлы OpenClaw внутри WSL файловой системы (<span class="y">/home/username/</span>),
+            а не на Windows дисках (<span class="r">/mnt/c/</span>).
+            Кросс-системный доступ к файлам работает в <b>10-20x медленнее</b>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">УСТАНОВИ OPENCLAW</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Ubuntu (WSL2)</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">npm install -g openclaw@latest</span>
+<span class="ok">+ openclaw@2026.2.6</span>
+
+<span class="prompt">$ </span>openclaw --version
+<span class="ok">openclaw/2026.2.6 linux-x64 node-v22.13.1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <div class="step-title">ЗАПУСТИ ОНБОРДИНГ</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Ubuntu (WSL2)</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">openclaw onboard --install-daemon</span>
+<span class="ok">  ✓ Config created at ~/.openclaw/openclaw.json</span>
+<span class="ok">  ✓ Workspace seeded</span>
+<span class="ok">  ✓ systemd service installed</span>
+<span class="ok">  ✓ Gateway started</span>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <span class="alert-icon">SYSD</span>
+          <div class="alert-text">
+            Некоторые дистрибутивы WSL2 не включают systemd по умолчанию. Проверь:
+            <br><code style="color:var(--green)">systemctl --user status openclaw-gateway</code>
+            <br>Если не работает, добавь в <span class="y">/etc/wsl.conf</span>:
+            <br><code style="color:var(--green)">[boot]<br>systemd=true</code>
+            <br>Затем перезапусти WSL: <code style="color:var(--green)">wsl --shutdown</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <div class="step-title">ОТКРОЙ DASHBOARD ИЗ WINDOWS БРАУЗЕРА</div>
+        <div class="step-desc">WSL2 пробрасывает порты на Windows автоматически:</div>
+        <div class="code-block">
+          <pre><span class="comment"># В браузере Windows (Chrome/Edge/Firefox):</span>
+<span class="str">http://localhost:18789</span>
+<span class="comment"># или</span>
+<span class="str">http://127.0.0.1:18789</span>
+
+<span class="comment"># Если не открывается — найди IP WSL2:</span>
+<span class="cmd">hostname -I</span>
+<span class="ok">→ 172.26.14.201</span>
+<span class="comment"># Тогда в браузере:</span>
+<span class="str">http://172.26.14.201:18789</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-ok">
+      <span class="alert-icon">DONE</span>
+      <div class="alert-text">
+        <b>Windows (WSL2) установка завершена!</b> Dashboard: <span class="c">http://localhost:18789</span><br>
+        Telegram bot готов к работе. Дальнейшая настройка — как на Linux.
+      </div>
+    </div>
+
+  </div><!-- /tab-windows -->
+
+  <!-- ══════════ VPS ══════════ -->
+  <div class="tab-content" id="tab-vps">
+
+    <div class="alert alert-info">
+      <span class="alert-icon">VPS</span>
+      <div class="alert-text">
+        <b>VPS — рекомендуется для продакшена.</b> OpenClaw на ноутбуке работает только пока он включён.
+        VPS даёт 24/7 аптайм. Рекомендуем: <b>Hetzner, DigitalOcean, Contabo</b>.
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:24px;">
+      <div class="section-title" style="font-size:9px;">РЕКОМЕНДУЕМЫЕ ХАРАКТЕРИСТИКИ VPS</div>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-card">
+        <div class="spec-card-title">⚡ MINIMUM</div>
+        <div class="spec-row"><span class="spec-key">RAM</span><span class="spec-val y">2 GB</span></div>
+        <div class="spec-row"><span class="spec-key">CPU</span><span class="spec-val">1-2 vCPU</span></div>
+        <div class="spec-row"><span class="spec-key">SSD</span><span class="spec-val">10 GB+</span></div>
+        <div class="spec-row"><span class="spec-key">OS</span><span class="spec-val">Ubuntu 22.04</span></div>
+        <div class="spec-row"><span class="spec-key">ЦЕНА</span><span class="spec-val g">~$4/мес</span></div>
+        <div class="spec-row"><span class="spec-key">ГДЕ</span><span class="spec-val">Hetzner CX22</span></div>
+      </div>
+      <div class="spec-card" style="border-color:var(--green);">
+        <div class="spec-card-title">🚀 RECOMMENDED</div>
+        <div class="spec-row"><span class="spec-key">RAM</span><span class="spec-val g">4 GB</span></div>
+        <div class="spec-row"><span class="spec-key">CPU</span><span class="spec-val">2 vCPU</span></div>
+        <div class="spec-row"><span class="spec-key">SSD</span><span class="spec-val">20 GB+</span></div>
+        <div class="spec-row"><span class="spec-key">OS</span><span class="spec-val">Ubuntu 22.04</span></div>
+        <div class="spec-row"><span class="spec-key">ЦЕНА</span><span class="spec-val g">~$6-8/мес</span></div>
+        <div class="spec-row"><span class="spec-key">ГДЕ</span><span class="spec-val">Hetzner CX23 / DO</span></div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-card-title">🔥 POWER USER</div>
+        <div class="spec-row"><span class="spec-key">RAM</span><span class="spec-val y">8+ GB</span></div>
+        <div class="spec-row"><span class="spec-key">CPU</span><span class="spec-val">4+ vCPU</span></div>
+        <div class="spec-row"><span class="spec-key">SSD</span><span class="spec-val">40 GB+</span></div>
+        <div class="spec-row"><span class="spec-key">OS</span><span class="spec-val">Ubuntu 22.04</span></div>
+        <div class="spec-row"><span class="spec-key">ЦЕНА</span><span class="spec-val">~$15+/мес</span></div>
+        <div class="spec-row"><span class="spec-key">ГДЕ</span><span class="spec-val">Hetzner CX33+</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-body">
+        <div class="step-title">СОЗДАЙ VPS И ПОДКЛЮЧИСЬ ПО SSH</div>
+        <div class="step-desc">Выбери Ubuntu 22.04 или 24.04. Настрой SSH-ключи при создании сервера.</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Local Terminal</span>
+          </div>
+          <div class="terminal-body">
+<span class="comment"># Подключись к серверу:</span>
+<span class="prompt">$ </span><span class="cmd">ssh user@YOUR_VPS_IP</span>
+<span class="ok">Welcome to Ubuntu 22.04.4 LTS</span>
+
+<span class="comment"># Создай non-root пользователя (если root):</span>
+<span class="prompt">$ </span><span class="cmd">adduser openclaw</span>
+<span class="prompt">$ </span><span class="cmd">usermod -aG sudo openclaw</span>
+<span class="prompt">$ </span><span class="cmd">su - openclaw</span>
+          </div>
+        </div>
+        <div class="alert alert-danger">
+          <span class="alert-icon">SEC</span>
+          <div class="alert-text">
+            <span class="r">НИКОГДА не устанавливай OpenClaw от root!</span>
+            Используй отдельного пользователя. Это критично для безопасности.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-body">
+        <div class="step-title">УСТАНОВИ NODE.JS 22 И OPENCLAW</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">VPS — Ubuntu 22.04</span>
+          </div>
+          <div class="terminal-body">
+<span class="comment"># Обновляем систему:</span>
+<span class="prompt">$ </span><span class="cmd">sudo apt update && sudo apt upgrade -y</span>
+
+<span class="comment"># Устанавливаем Node.js 22:</span>
+<span class="prompt">$ </span><span class="cmd">curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -</span>
+<span class="prompt">$ </span><span class="cmd">sudo apt install -y nodejs</span>
+<span class="prompt">$ </span>node --version
+<span class="ok">v22.13.1</span>
+
+<span class="comment"># Устанавливаем OpenClaw:</span>
+<span class="prompt">$ </span><span class="cmd">npm install -g openclaw@latest</span>
+<span class="ok">+ openclaw@2026.2.6</span>
+
+<span class="prompt">$ </span>openclaw --version
+<span class="ok">openclaw/2026.2.6 linux-x64 node-v22.13.1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-body">
+        <div class="step-title">ЗАПУСТИ ОНБОРДИНГ</div>
+        <div class="step-desc">На VPS онбординг запускается в headless режиме. Заранее подготовь API ключи.</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">VPS — onboarding</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">openclaw onboard --install-daemon</span>
+<span class="out">  [1] API key (Anthropic/OpenAI): sk-ant-...</span>
+<span class="out">  [2] Model: claude-sonnet-4-5</span>
+<span class="out">  [3] Telegram token: 123456:ABC...</span>
+<span class="out">  [4] Gateway bind: Local (127.0.0.1)</span>  <span class="comment">← выбирай LOCAL на VPS!</span>
+<span class="ok">  ✓ systemd service installed</span>
+<span class="ok">  ✓ Gateway started → ws://127.0.0.1:18789</span>
+          </div>
+        </div>
+        <div class="alert alert-warn">
+          <span class="alert-icon">!!!</span>
+          <div class="alert-text">
+            При выборе bind — выбирай <span class="y">Local (127.0.0.1)</span>, НЕ 0.0.0.0.
+            Это критичная настройка безопасности для VPS. Проверь после:
+            <br><code style="color:var(--green)">netstat -an | grep 18789 | grep LISTEN</code>
+            <br>Должно быть <span class="g">127.0.0.1:18789</span>, а не <span class="r">0.0.0.0:18789</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-body">
+        <div class="step-title">НАСТРОЙ FIREWALL (UFW)</div>
+        <div class="step-desc">Защити сервер — оставь только необходимые порты:</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">VPS — firewall</span>
+          </div>
+          <div class="terminal-body">
+<span class="prompt">$ </span><span class="cmd">sudo ufw default deny incoming</span>
+<span class="prompt">$ </span><span class="cmd">sudo ufw default allow outgoing</span>
+<span class="prompt">$ </span><span class="cmd">sudo ufw allow 22/tcp</span>
+<span class="prompt">$ </span><span class="cmd">sudo ufw limit 22/tcp</span>          <span class="comment">← rate limit SSH</span>
+<span class="prompt">$ </span><span class="cmd">sudo ufw enable</span>
+<span class="prompt">$ </span><span class="cmd">sudo ufw status numbered</span>
+<span class="ok">  [ 1] 22/tcp         ALLOW IN   Anywhere (limit)</span>
+<span class="ok">  [ 2] Outgoing       ALLOW OUT  Anywhere</span>
+          </div>
+        </div>
+        <div class="firewall-grid">
+          <div class="fw-rule allow"><span class="port">:22/tcp</span><br><span class="desc">SSH — оставить (rate-limit)</span></div>
+          <div class="fw-rule allow"><span class="port">:80/:443</span><br><span class="desc">HTTP/S если нужен Nginx</span></div>
+          <div class="fw-rule deny"><span class="port">:18789</span><br><span class="desc">Gateway — НЕ открывать публично</span></div>
+          <div class="fw-rule rate"><span class="port">Outbound</span><br><span class="desc">Allow all (для Telegram API)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-body">
+        <div class="step-title">УДАЛЁННЫЙ ДОСТУП К DASHBOARD (SSH TUNNEL)</div>
+        <div class="step-desc">Control UI не открывают в публичный интернет. Используй SSH tunnel с локальной машины:</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">Local Terminal — SSH Tunnel</span>
+          </div>
+          <div class="terminal-body">
+<span class="comment"># На локальной машине (Mac/Windows WSL):</span>
+<span class="prompt">$ </span><span class="cmd">ssh -L 18789:127.0.0.1:18789 user@YOUR_VPS_IP -N</span>
+<span class="comment"># Держи этот terminal открытым</span>
+
+<span class="comment"># Теперь в браузере на локальной машине:</span>
+<span class="str">http://127.0.0.1:18789</span>
+
+<span class="comment"># Или постоянный туннель через Tailscale (рекомендуется):</span>
+<span class="prompt">$ </span><span class="cmd">curl -fsSL https://tailscale.com/install.sh | sh</span>
+<span class="prompt">$ </span><span class="cmd">sudo tailscale up</span>
+<span class="ok">→ Authenticated. IP: 100.64.x.x</span>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <span class="alert-icon">TIP</span>
+          <div class="alert-text">
+            <b>Tailscale</b> — самый удобный способ постоянного доступа к VPS Gateway.
+            После установки Dashboard доступен по Tailscale IP: <span class="c">http://100.64.x.x:18789</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">06</div>
+      <div class="step-body">
+        <div class="step-title">УПРАВЛЕНИЕ SYSTEMD DAEMON</div>
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span>
+            <span class="terminal-title">VPS — systemd</span>
+          </div>
+          <div class="terminal-body">
+<span class="comment"># Статус Gateway:</span>
+<span class="prompt">$ </span><span class="cmd">systemctl --user status openclaw-gateway</span>
+<span class="ok">● openclaw-gateway.service - OpenClaw Gateway</span>
+<span class="ok">     Active: active (running) since ...</span>
+
+<span class="comment"># Перезапуск:</span>
+<span class="prompt">$ </span><span class="cmd">systemctl --user restart openclaw-gateway</span>
+
+<span class="comment"># Логи:</span>
+<span class="prompt">$ </span><span class="cmd">openclaw logs --follow</span>
+<span class="comment"># или</span>
+<span class="prompt">$ </span><span class="cmd">journalctl --user -u openclaw-gateway -f</span>
+
+<span class="comment"># Security audit:</span>
+<span class="prompt">$ </span><span class="cmd">openclaw security audit --deep</span>
+<span class="ok">  ✓ Gateway bound to localhost</span>
+<span class="ok">  ✓ Non-root execution</span>
+<span class="ok">  ✓ Firewall active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">07</div>
+      <div class="step-body">
+        <div class="step-title">ОПЦИОНАЛЬНО: DOCKER DEPLOY</div>
+        <div class="step-desc">Для максимальной изоляции на production VPS — Docker Compose конфиг:</div>
+        <div class="code-block">
+          <div class="code-label">docker-compose.yml</div>
+          <pre><span class="str">version: '3.8'
+services:
+  openclaw:</span>
+<span class="cmd">    image: openclaw/openclaw:latest</span>
+<span class="str">    container_name: openclaw-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18789:18789"</span>  <span class="comment">← только localhost!</span>
+<span class="str">    volumes:
+      - ~/.openclaw:/root/.openclaw
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    deploy:
+      resources:
+        limits:
+          memory: 512m</span>  <span class="comment">← лимит RAM</span>
+<span class="str">          cpus: '1'</span></pre>
+        </div>
+        <div class="code-block">
+          <pre><span class="comment"># Запуск:</span>
+<span class="cmd">docker compose up -d</span>
+<span class="ok">→ openclaw-gateway started</span>
+
+<span class="comment"># Обновление:</span>
+<span class="cmd">docker compose pull && docker compose up -d</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-ok">
+      <span class="alert-icon">DONE</span>
+      <div class="alert-text">
+        <b>VPS установка завершена!</b> Gateway работает 24/7. Доступ через SSH tunnel или Tailscale.
+        Telegram бот отвечает в любое время суток.
+      </div>
+    </div>
+
+  </div><!-- /tab-vps -->
+
+  <!-- ═══════════════════════════════ CONFIG ═══════════════════════════════ -->
+  <div class="section-head">
+    <div class="section-num">02</div>
+    <div class="section-title">БАЗОВЫЙ КОНФИГ (~/.openclaw/openclaw.json)</div>
+    <div class="section-line"></div>
+  </div>
+
+  <p style="color:var(--white);margin-bottom:16px;">Минимальный конфиг для запуска с Telegram:</p>
+
+  <div class="code-block">
+    <div class="code-label">openclaw.json</div>
+    <pre><span class="str">{</span>
+  <span class="flag">// Идентичность бота:</span>
+  <span class="str">identity: {
+    name: </span><span class="cmd">"MyBot"</span><span class="str">,
+    emoji: </span><span class="cmd">"🤖"</span><span class="str">,
+  },</span>
+
+  <span class="flag">// API ключи через переменные окружения (безопаснее):</span>
+  <span class="str">env: {
+    vars: {
+      ANTHROPIC_API_KEY: </span><span class="cmd">"sk-ant-..."</span><span class="str">,
+    },
+  },</span>
+
+  <span class="flag">// Агент:</span>
+  <span class="str">agents: {
+    defaults: {
+      model: { primary: </span><span class="cmd">"anthropic/claude-sonnet-4-5"</span><span class="str"> },
+    },
+  },</span>
+
+  <span class="flag">// Telegram канал:</span>
+  <span class="str">channels: {
+    telegram: {
+      botToken: </span><span class="cmd">"${TELEGRAM_BOT_TOKEN}"</span><span class="str">,
+      dmPolicy: </span><span class="cmd">"pairing"</span><span class="str">,     </span><span class="flag">// незнакомцы получат код подтверждения</span>
+<span class="str">      groups: {
+        </span><span class="cmd">"*"</span><span class="str">: { requireMention: </span><span class="cmd">true</span><span class="str"> },  </span><span class="flag">// в группах нужен @mention</span>
+<span class="str">      },
+    },
+  },</span>
+<span class="str">}</span></pre>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">!!!</span>
+    <div class="alert-text">
+      <b>Строгая валидация схемы!</b> Неизвестные ключи или неверные типы = Gateway <span class="r">не запустится</span>.
+      При ошибках запускай: <code style="color:var(--green)">openclaw doctor --fix</code>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ COMMANDS ═══════════════════════════════ -->
+  <div class="section-head">
+    <div class="section-num">03</div>
+    <div class="section-title">КЛЮЧЕВЫЕ КОМАНДЫ</div>
+    <div class="section-line"></div>
+  </div>
+
+  <table class="px-table">
+    <tr>
+      <th>КОМАНДА</th>
+      <th>ЧТО ДЕЛАЕТ</th>
+    </tr>
+    <tr><td class="g">openclaw onboard --install-daemon</td><td>Полный wizard + автозапуск</td></tr>
+    <tr><td class="g">openclaw gateway</td><td>Запустить Gateway вручную</td></tr>
+    <tr><td class="g">openclaw doctor [--fix]</td><td>Диагностика + автоисправление</td></tr>
+    <tr><td class="g">openclaw status --deep</td><td>Полный статус системы</td></tr>
+    <tr><td class="g">openclaw logs --follow</td><td>Живые логи</td></tr>
+    <tr><td class="g">openclaw pairing list telegram</td><td>Ожидающие подтверждения</td></tr>
+    <tr><td class="g">openclaw pairing approve telegram CODE</td><td>Одобрить pairing</td></tr>
+    <tr><td class="g">openclaw channels status --probe</td><td>Здоровье каналов</td></tr>
+    <tr><td class="g">openclaw security audit</td><td>Аудит безопасности</td></tr>
+    <tr><td class="g">openclaw update</td><td>Обновить до последней версии</td></tr>
+  </table>
+
+  <!-- ═══════════════════════════════ TROUBLESHOOT ═══════════════════════════════ -->
+  <div class="section-head">
+    <div class="section-num">04</div>
+    <div class="section-title">TROUBLESHOOTING</div>
+    <div class="section-line"></div>
+  </div>
+
+  <table class="px-table">
+    <tr>
+      <th>СИМПТОМ</th>
+      <th>ПРИЧИНА</th>
+      <th>РЕШЕНИЕ</th>
+    </tr>
+    <tr>
+      <td class="r">Gateway не стартует</td>
+      <td>Невалидный конфиг</td>
+      <td class="g">openclaw doctor --fix</td>
+    </tr>
+    <tr>
+      <td class="r">command not found: openclaw</td>
+      <td>npm global bin не в PATH</td>
+      <td class="g">export PATH="$(npm prefix -g)/bin:$PATH"</td>
+    </tr>
+    <tr>
+      <td class="r">Бот не отвечает</td>
+      <td>Нет pairing / неверный allowFrom</td>
+      <td class="g">openclaw pairing list telegram</td>
+    </tr>
+    <tr>
+      <td class="r">Группы игнорируются</td>
+      <td>requireMention + privacy mode ON</td>
+      <td class="g">BotFather → /setprivacy → Disable</td>
+    </tr>
+    <tr>
+      <td class="r">Port already in use</td>
+      <td>Порт 18789 занят</td>
+      <td class="g">openclaw gateway --force</td>
+    </tr>
+    <tr>
+      <td class="r">0.0.0.0:18789 в netstat</td>
+      <td>Gateway открыт публично</td>
+      <td class="g">openclaw configure → bind: loopback</td>
+    </tr>
+    <tr>
+      <td class="r">Telegram setMyCommands failed</td>
+      <td>Блокировка DNS/HTTPS</td>
+      <td class="g">Проверь outbound к api.telegram.org</td>
+    </tr>
+    <tr>
+      <td class="r">WSL: systemd не работает</td>
+      <td>systemd отключён по умолчанию</td>
+      <td class="g">/etc/wsl.conf → [boot] systemd=true</td>
+    </tr>
+  </table>
+
+  <!-- ═══════════════════════════════ PROGRESS ═══════════════════════════════ -->
+  <div class="section-head">
+    <div class="section-num">05</div>
+    <div class="section-title">CHECKLIST — ВСЁ ГОТОВО?</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div style="margin:20px 0;">
+    <div class="progress-row">
+      <span class="progress-lbl">Node 22+</span>
+      <div class="progress-bar"><div class="progress-fill" style="--w:1;animation-delay:0s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+    <div class="progress-row">
+      <span class="progress-lbl">OpenClaw</span>
+      <div class="progress-bar"><div class="progress-fill" style="animation-delay:.2s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+    <div class="progress-row">
+      <span class="progress-lbl">API Key</span>
+      <div class="progress-bar"><div class="progress-fill" style="animation-delay:.4s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+    <div class="progress-row">
+      <span class="progress-lbl">Telegram Bot</span>
+      <div class="progress-bar"><div class="progress-fill" style="animation-delay:.6s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+    <div class="progress-row">
+      <span class="progress-lbl">Pairing</span>
+      <div class="progress-bar"><div class="progress-fill" style="animation-delay:.8s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+    <div class="progress-row">
+      <span class="progress-lbl">Security</span>
+      <div class="progress-bar"><div class="progress-fill" style="animation-delay:1s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+    <div class="progress-row">
+      <span class="progress-lbl">Daemon 24/7</span>
+      <div class="progress-bar"><div class="progress-fill" style="animation-delay:1.2s"></div></div>
+      <span class="progress-val">100%</span>
+    </div>
+  </div>
+
+  <div class="px-divider">■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■ ■</div>
+
+  <!-- FINAL -->
+  <div class="alert alert-ok" style="text-align:center;padding:32px;">
+    <div style="width:100%">
+      <div class="px" style="font-size:10px;color:var(--green);text-shadow:0 0 16px var(--green-glow);margin-bottom:16px;">
+        🦞 OPENCLAW IS ONLINE 🦞
+      </div>
+      <div style="color:var(--white);font-size:13px;line-height:2;">
+        Твой AI-агент работает 24/7.<br>
+        Пиши боту в Telegram — он ответит с любого уголка планеты.<br>
+        <span style="color:var(--green)">Your code. Your AI. Your rules.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+  <div class="footer">
+    <div class="footer-logo">// OPENCLAW //</div>
+    <div class="footer-links">
+      <a href="https://docs.openclaw.ai" target="_blank">DOCS</a>
+      <a href="https://github.com/openclaw/openclaw" target="_blank">GITHUB</a>
+      <a href="https://docs.openclaw.ai/channels/telegram" target="_blank">TELEGRAM</a>
+      <a href="https://docs.openclaw.ai/gateway/security" target="_blank">SECURITY</a>
+      <a href="https://clawhub.dev" target="_blank">CLAWHUB</a>
+    </div>
+    <div class="footer-copy">MIT LICENSE // OPEN SOURCE // SELF-HOSTED // YOUR DATA STAYS LOCAL</div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Pixel cursor trail
+document.addEventListener('mousemove', function(e) {
+  const trail = document.createElement('div');
+  trail.style.cssText = `
+    position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+    width:4px;height:4px;background:#00ff41;
+    pointer-events:none;z-index:9998;opacity:.6;
+    box-shadow:0 0 4px #00ff41;
+  `;
+  document.body.appendChild(trail);
+  setTimeout(() => trail.remove(), 300);
+});
+</script>
+</body>
+</html>
